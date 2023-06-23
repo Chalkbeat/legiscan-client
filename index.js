@@ -10,9 +10,7 @@ var apiKeys = {
 var pause = (time = 1000) => new Promise(ok => setTimeout(ok, time));
 var fetchJSON = url => fetch(url).then(r => r.json());
 
-// var state = 'tx'
-// var year = 2
-
+// search term that fills in flex words within base query 
 var queries = [
   "gender",
   "transgender",
@@ -101,15 +99,15 @@ var getBillText = async function(bill) {
 
 };
 
-var scrapeBillText = async function(bill) {
+// var scrapeBillText = async function(bill) {
 
-  if (bill.texts) {
-    id = bill.texts.at(-1).doc_id; // gets ID for most recent revision in bill text
-    url = bill.texts.at(-1).url;
-    console.log(id, url);
-  };
+//   if (bill.texts) {
+//     id = bill.texts.at(-1).doc_id; // gets ID for most recent revision in bill text
+//     url = bill.texts.at(-1).url;
+//     console.log(id, url);
+//   };
 
-};
+// };
 
 async function main() {
 
@@ -118,12 +116,14 @@ async function main() {
 
   for (var q of queries) {
     var query = `school AND "${q}" NOT "medical school"`;
-    var { all } = await getBillList(query);
+    var { all } = await getBillList(query, "tx");
     for (var item of all) {
       item.searchTerm = q;
     }
     collected.push(...all);
   }
+
+  // console.log(collected);
   
   var billIds = new Set(collected.map(c => c.bill_id));
 
@@ -136,79 +136,21 @@ async function main() {
     }
   };
 
-  for (let bill of collectedDetails) {
-    var billText = await scrapeBillText(bill);
-  }
+  // console.log(collectedDetails);
+
+  var passedBillIds = new Set(collectedDetails.map(c => c.bill_id));
+
+  console.log(passedBillIds);
+
+  // var collectedPassedBills = collected.filter(c => passedBillIds.includes(c.bill_id));
+
+  // console.log(collectedPassedBills);
 
   // map billId to metadata
   // array of objects for billId, query, relevancy
-
-  // console.log(collectedDetails);
 
 }
 
 main();
 
 // create array of relevance score : search term, keep single results
-
-
-// getBillList(query, "tx")//.then(results => console.log(results));
-
-/*
-  Get a page of results for a search against the LegiScan full text engine; returns a NON-paginated result set with simplified details.
-  Specify a bill number or a query string.  Year can be an exact year
-  or a number between 1 and 4, inclusive.  These integers have the
-  following meanings:
-      1 = all years
-      2 = current year, the default
-      3 = recent years
-      4 = prior years
-*/
-
-// async search({ state = 'ALL', year = 2, query = null }) {
-//   const { BASE_URL } = this;
-//   const queryString = `&op=getSearch&state=${state}&query=${query}&year=${year}`;
-//   const url = BASE_URL + queryString;
-
-//   try {
-//     const response = await axios.get(url);
-//     const searchReults = response.data.searchresult;
-
-//     if (!searchReults) {
-//       console.log('No search results?', response.data);
-//       return [];
-//     }
-
-    // const keys = Object.keys(searchReults);
-    // const billKeys = keys.filter(d => d.match(/^\d+$/)); // store numeric keys
-
-//     // Check if there are bills that exist in this query
-//     if (billKeys === []) return [];
-
-//     const withSearthTerm = billKeys.map((key) => {
-//       const bill = searchReults[key];
-//       bill.query = query;
-//       return bill;
-//     });
-
-//     return withSearthTerm;
-//   } catch (e) {
-//     console.error('🚨Search error:', state, query, year);
-//   }
-// }
-
-// async getBillText(docId) {
-//   const { BASE_URL } = this;
-//   const queryString = `&op=getBillText&id=${docId}`;
-//   const url = BASE_URL + queryString;
-
-//   try {
-//     const response = await axios.get(url);
-//     const docInfo = response.data.text;
-//     return docInfo;
-//   } catch (e) {
-//     console.error('🚨getBillText error:', docId, e.code);
-//     return null;
-//   }
-// }
-// }
