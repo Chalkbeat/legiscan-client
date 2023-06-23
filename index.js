@@ -49,7 +49,6 @@ var getBillList = async function(query, state = "ALL", year = 2, page = 1) {
     var items = billKeys.map(k => bills.searchresult[k]);
     all.push(...items);
 
-    console.log(bills.searchresult.summary);
     page++;
 
   } while (bills.searchresult.summary.page_total > bills.searchresult.summary.page_current * 1);
@@ -89,11 +88,7 @@ var getBillText = async function(bill) {
     id, key: apiKeys.legiscan_key, op: "getBillText"
   }).toString();
 
-  console.log(url);
-
   var billText = await fetchJSON(url.toString());
-
-  console.log(billText);
 
   return billText;
 
@@ -111,44 +106,39 @@ var getBillText = async function(bill) {
 
 async function main() {
 
-  var collected = [];
-  var collectedDetails = [];
-
+  var collected = new Map();
+  var hits = [];
+  
   for (var q of queries) {
-    var query = `school AND "${q}" NOT "medical school"`;
+    var query = `school AND ${q} NOT "medical school"`;
     var { all } = await getBillList(query, "tx");
     for (var item of all) {
-      item.searchTerm = q;
+      var { bill_id, relevance } = item;
+      // store the result for every hit
+      hits.push({ bill_id, relevance, searchTerm: q });
+      // store the item just once
+      if (!collected.has(bill_id)) {
+        collected.set(bill_id, item);
+      }
     }
-    collected.push(...all);
   }
 
-  // console.log(collected);
-  
-  var billIds = new Set(collected.map(c => c.bill_id));
+  console.log(hits.length + " search results");
+  console.log(collected.size + " bills associated with those results");
 
-  for (let billId of billIds) {
+  for (var [id, bill] of collected) {
+    // add the details to the bill object directly
+    bill.details = await getBillDetails(id);
 
-    var billDetails = await getBillDetails(billId);
-
-    if (billDetails) {
-      collectedDetails.push(billDetails);
+    // removes bills that are not enrolled or passed
+    if (!bill.details){
+      collected.delete(id);
+      hits = hits.filter(b => b.bill_id != id);
     }
-  };
+  }
 
-  // console.log(collectedDetails);
-
-  var passedBillIds = new Set(collectedDetails.map(c => c.bill_id));
-
-  console.log(passedBillIds);
-
-  // var collectedPassedBills = collected.filter(c => passedBillIds.includes(c.bill_id));
-
-  // console.log(collectedPassedBills);
-
-  // map billId to metadata
-  // array of objects for billId, query, relevancy
-
+  console.log(hits.length + " search results for passed bills");
+  console.log(collected.size + " bills that have passed");
 }
 
 main();
