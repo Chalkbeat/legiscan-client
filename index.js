@@ -2,6 +2,10 @@
 // var { writeCSV } = require("./local");
 // var { uploadSheet } = require("./upload");
 
+const fs = require('fs');
+
+var sql = require("./sql");
+
 var apiKeys = {
   legiscan_key: process.env.LEGISCAN_API_KEY
 }
@@ -111,7 +115,7 @@ async function main() {
   
   for (var q of queries) {
     var query = `school AND ${q} NOT "medical school"`;
-    var { all } = await getBillList(query, "tx");
+    var { all } = await getBillList(query, "wa");
     for (var item of all) {
       var { bill_id, relevance } = item;
       // store the result for every hit
@@ -134,13 +138,34 @@ async function main() {
     if (!bill.details){
       collected.delete(id);
       hits = hits.filter(b => b.bill_id != id);
+    } else {
+      bill.details.bill_id = String(bill.details.bill_id);
     }
+
+    // converts bill_id from integer
   }
+
+
+  for (let hit of hits) {
+    // converts bill_id from integer
+    hit.bill_id = String(hit.bill_id)
+
+    // stores keywords list in SQL database
+    sql.insertQuery.run(hit);
+  }
+
+  // console.log(logRows.all());
 
   console.log(hits.length + " search results for passed bills");
   console.log(collected.size + " bills that have passed");
+  // console.log(hits[0].bill_id);
+  // console.log(collected);
+
+  fs.writeFileSync("outfile.json", JSON.stringify(Object.fromEntries(collected), null, 2))
 }
 
 main();
+console.log(sql.countQueries.all());
+console.log(sql.logRows.all());
 
 // create array of relevance score : search term, keep single results
