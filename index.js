@@ -30,7 +30,7 @@ var queries = [
 // search
 // I usually set up an array to hold the results, and then I do "get page X, push results into the array, get page X + 1, push results" until I run out of pages. Then I can look at the array.
 // resultAccumulator.push(...response.results)
- 
+
 var getBillList = async function(query, state = "ALL", year = 2, page = 1) {
 
   var url = new URL("https://api.legiscan.com/");
@@ -162,10 +162,10 @@ async function main() {
   // console.log(collected);
 
   fs.writeFileSync("outfile.json", JSON.stringify(Object.fromEntries(collected), null, 2))
+  console.log(sql.countQueries.all());
+  console.log(sql.logRows.all());
 }
 
 main();
-console.log(sql.countQueries.all());
-console.log(sql.logRows.all());
 
 // create array of relevance score : search term, keep single results

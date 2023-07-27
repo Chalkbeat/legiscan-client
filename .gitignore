@@ -1,2 +1,4 @@
 legiscan.db
 outfile.json
+node_modules
+package-lock.json
