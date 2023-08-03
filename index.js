@@ -132,19 +132,29 @@ async function main() {
 
   for (var [id, bill] of collected) {
     // add the details to the bill object directly
-    bill.details = await getBillDetails(id);
+    let details = await getBillDetails(id);
 
     // removes bills that are not enrolled or passed
-    if (!bill.details){
+    if (!details){
       collected.delete(id);
       hits = hits.filter(b => b.bill_id != id);
-    } else {
-      bill.details.bill_id = String(bill.details.bill_id);
+
+      continue;
     }
 
-    // converts bill_id from integer
-  }
+    // modifies and flattens collected map
+    Object.assign(bill, details);
 
+    // constants to translate numeric IDs
+    // const status = {1: "Introduced", Introduced: 1, 2: "Engrossed", 3: "Enrolled", 4: "Passed", 5: "Vetoed", 6: "Failed/Dead"};
+    // Yeah. Yeah, so you could do bill.detail.status_full = status[bill.detail.status] to add a property with the English word.
+    // You can just do them with the numbers or the words and then use a loop to go the other way.
+    // So if you had const STATUS = { 1: "introduced" }, then for (var [key, value] of Object.entries(STATUS)) { STATUS[value] = key; } adds the reverse properties.
+
+    // converts integer ID to string
+    bill.bill_id = String(bill.bill_id);
+    // if (bill.status == status.enrolled) {  };
+  }
 
   for (let hit of hits) {
     // converts bill_id from integer
@@ -154,16 +164,13 @@ async function main() {
     sql.insertQuery.run(hit);
   }
 
-  // console.log(logRows.all());
-
   console.log(hits.length + " search results for passed bills");
   console.log(collected.size + " bills that have passed");
-  // console.log(hits[0].bill_id);
-  // console.log(collected);
 
-  fs.writeFileSync("outfile.json", JSON.stringify(Object.fromEntries(collected), null, 2))
   console.log(sql.countQueries.all());
   console.log(sql.logRows.all());
+
+  fs.writeFileSync("outfile.json", JSON.stringify(Object.fromEntries(collected), null, 2))
 }
 
 main();
