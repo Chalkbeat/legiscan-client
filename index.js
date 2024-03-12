@@ -16,14 +16,15 @@ var fetchJSON = url => fetch(url).then(r => r.json());
 
 // search term that fills in flex words within base query 
 var queries = [
-  "gender",
-  "transgender",
-  "sexual orientation",
-  "homosexual",
-  "homosexuality",
-  "parental rights",
-  "gender identity",
-  "gender transition"
+  // "gender",
+  // "transgender",
+  // "sexual orientation",
+  // "homosexual",
+  // "homosexuality",
+  // "parental rights",
+  // "gender identity",
+  // "gender transition"
+  "transportation network"
 ]
 
 // Runs LegiScan built-in full-text search method
@@ -114,7 +115,10 @@ async function main() {
   var hits = [];
   
   for (var q of queries) {
-    var query = `school AND ${q} NOT "medical school"`;
+    // var query = `school AND ${q} NOT "medical school"`;
+    var query = `school AND ${q}`;
+
+    // add `, "wa"` to pick a state
     var { all } = await getBillList(query, "wa");
     for (var item of all) {
       var { bill_id, relevance } = item;
@@ -166,6 +170,8 @@ async function main() {
 
   console.log(hits.length + " search results for passed bills");
   console.log(collected.size + " bills that have passed");
+
+  // console.log(collected);
 
   console.log(sql.countQueries.all());
   console.log(sql.logRows.all());
