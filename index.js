@@ -157,6 +157,8 @@ async function main() {
 
     // converts integer ID to string
     bill.bill_id = String(bill.bill_id);
+    sql.insertBill(bill);
+    console.log(bill);
     // if (bill.status == status.enrolled) {  };
   }
 
@@ -164,7 +166,7 @@ async function main() {
     // converts bill_id from integer
     hit.bill_id = String(hit.bill_id)
 
-    // stores keywords list in SQL database
+    // stores keywords list in SQL queries table
     sql.insertQuery.run(hit);
   }
 
