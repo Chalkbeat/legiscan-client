@@ -26,8 +26,8 @@ for (var q of queries) {
   var query = `school AND "${q}"`;
 
   // add `, "wa"` to pick a state
-  var all = await client.getSearch(query, true, "wa");
-  for (var item of all) {
+  // var all = await client.getSearch(query, true, "wa");
+  for await (var item of client.getSearch(query, true, "wa")) {
     var { bill_id, relevance } = item;
     // store the result for every hit
     hits.push({ bill_id, relevance, searchTerm: q });

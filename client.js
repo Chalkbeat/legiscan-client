@@ -36,7 +36,7 @@ export class LegiscanClient {
     return raw.bill || {};
   }
 
-  async getSearch(query, detailed = true, state = "", year = LegiscanClient.CURRENT_YEAR) {
+  async *getSearch(query, detailed = true, state = "", year = LegiscanClient.CURRENT_YEAR) {
     var page = 1;
 
     var all = [];
@@ -64,15 +64,13 @@ export class LegiscanClient {
         }));
       }
 
-      all.push(...items);
+      yield* items;
 
       page++;
 
-      if (summary.page_total <= page) break;
+      if (summary.page_total < page) break;
 
     }
-
-    return all;
   }
 
 }
