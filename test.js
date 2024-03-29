@@ -27,7 +27,7 @@ for (var q of queries) {
 
   // add `, "wa"` to pick a state
   // var all = await client.getSearch(query, true, "wa");
-  for await (var item of client.getSearch(query, true, "wa")) {
+  for (var item of await client.getSearch(query, true, { state: "wa" })) {
     var { bill_id, relevance } = item;
     // store the result for every hit
     hits.push({ bill_id, relevance, searchTerm: q });

@@ -7,11 +7,21 @@ var statusSet = args.status ? new Set(args.status.split(",").map(Number)) : { ha
 
 var query = args._.at(-1);
 
-for await (var result of client.getSearch(query, !args.nodetails, args.state, args.year)) {
-  if (statusSet.has(result.status)) {
-    // produce results as ND-JSON
-    console.log(JSON.stringify(result));
-  }
-}
+var params = {
+  state: args.state,
+  year: args.year
+};
+
+// async collection
+var all = await client.getSearch(query, !args.nodetails, params);
+console.log(all.length);
+
+// async iterator
+// for await (var result of client.getSearchAsync(query, !args.nodetails, params)) {
+//   if (statusSet.has(result.status)) {
+//     // produce results as ND-JSON
+//     console.log(JSON.stringify(result));
+//   }
+// }
 
 // node cli 'schools and "transportation network" NOT medical' --status=3,4
