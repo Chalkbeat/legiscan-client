@@ -22,7 +22,7 @@ export class LegiscanClient {
   static FAILED = 6;
 
   /**
-   * @param {string} key - the key for the API
+   * @param {string} key - the key for the API, defaults to your $LEGISCAN_API_KEY env variable
    */
   constructor(key = process.env.LEGISCAN_API_KEY) {
     this.key = key;
@@ -66,6 +66,7 @@ export class LegiscanClient {
   /**
    * Get the full text of a bill
    * @param {string} id - bill ID to request
+   * @returns {Object}
    */
   async getBillText(id) {
     return this.request("getBillText", { id });
@@ -75,6 +76,7 @@ export class LegiscanClient {
    * Get the details for a bill (such as status or history)
    * @async
    * @param {string} id - bill ID to request
+   * @returns {Object}
    */
   async getBill(id) {
     var raw = await this.request("getBill", { id });
@@ -83,9 +85,8 @@ export class LegiscanClient {
 
   /**
    * Get the results of a search as a complete array containing all response pages
-   * @async
    * @param {string} query
-   * @param {boolean} [detailed=true] - Should this also get bill details? Defaults to true
+   * @param {boolean} [detailed=true] - Should this also get bill details?
    * @param {Object} [params] - Additional search parameters
    * @param {string} [params.state] - US state for this search
    * @param {number} [params.year] - Year specifier (available as static constants on LegiscanClient)
@@ -101,14 +102,12 @@ export class LegiscanClient {
 
   /**
    * Get the results of a search one at a time, as an async iterator
-   * @async
-   * @generator
    * @param {string} query
-   * @param {boolean} [detailed=true] - Should this also get bill details? Defaults to true
+   * @param {boolean} [detailed=true] - Should this also get bill details?
    * @param {Object} [params] - Additional search parameters
    * @param {string} [params.state] - US state for this search
    * @param {number} [params.year] - Year specifier (available as static constants on LegiscanClient)
-   * @yields {Object}
+   * @yields {Object} Individual bill data
    */
   async *getSearchAsync(query, detailed = true, params = {}) {
     var page = 1;
