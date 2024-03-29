@@ -80,6 +80,7 @@ export class LegiscanClient {
    */
   async getBill(id) {
     var raw = await this.request("getBill", { id });
+    if (!raw.bill) console.log("No details for ", id);
     return raw.bill || {};
   }
 
@@ -130,7 +131,7 @@ export class LegiscanClient {
 
       // if requested, get and merge in detail information
       if (detailed) {
-        await parallel(items, b => this.getBill(b.bill_id).then(d => Object.assign(item, d)));
+        await parallel(items, async b => Object.assign(b, await this.getBill(b.bill_id)));
       }
 
       yield* items;

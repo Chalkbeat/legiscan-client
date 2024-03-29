@@ -1,4 +1,4 @@
-import { LegiscanClient } from "./client.js";
+import { LegiscanClient } from "../client.js";
 import * as fs from "node:fs";
 
 var { ENROLLED, PASSED } = LegiscanClient;
@@ -7,15 +7,14 @@ var client = new LegiscanClient();
 
 // search term that fills in flex words within base query 
 var queries = [
-  // "gender",
-  // "transgender",
-  // "sexual orientation",
-  // "homosexual",
-  // "homosexuality",
-  // "parental rights",
-  // "gender identity",
-  // "gender transition"
-  "transportation network"
+  "gender",
+  "transgender",
+  "sexual orientation",
+  "homosexual",
+  "homosexuality",
+  "parental rights",
+  "gender identity",
+  "gender transition"
 ]
 
 var collected = new Map();
@@ -23,11 +22,11 @@ var hits = [];
 
 for (var q of queries) {
   // var query = `school AND ${q} NOT "medical school"`;
-  var query = `school AND "${q}"`;
+  var query = `school AND "${q}" NOT "medical school"`;
 
   // add `, "wa"` to pick a state
   // var all = await client.getSearch(query, true, "wa");
-  for (var item of await client.getSearch(query, true, { state: "wa" })) {
+  for await (var item of client.getSearchAsync(query, true, { state: "wa" })) {
     var { bill_id, relevance } = item;
     // store the result for every hit
     hits.push({ bill_id, relevance, searchTerm: q });
@@ -39,20 +38,20 @@ for (var q of queries) {
 }
 
 console.log(hits.length + " search results");
-console.log(collected.size + " bills associated with those results");
+console.log(collected.size + " distinct bills associated with those results");
 
+var acceptable = new Set([ENROLLED, PASSED]);
 for (var [id, bill] of collected) {
   // removes bills that are not enrolled or passed
   // we got the details by default above, which includes status
-  var acceptable = new Set([ENROLLED, PASSED]);
   if (!acceptable.has(bill.status)) {
     collected.delete(id);
     hits = hits.filter(b => b.bill_id != id);
-    continue;
   }
 }
 
 console.log(hits.length + " search results for passed bills");
-console.log(collected.size + " bills that have passed");
+console.log("Search queries that returned results: ", [...new Set(hits.map(h => h.searchTerm))])
+console.log(collected.size + " distinct bills that have passed");
 
 // console.log(JSON.stringify(Object.fromEntries(collected), null, 2));
