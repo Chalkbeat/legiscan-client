@@ -1,7 +1,6 @@
 import { LegiscanClient } from "../client.js";
 import * as fs from "node:fs";
-
-var { ENROLLED, PASSED } = LegiscanClient;
+import { PROGRESS_VALUES as STATUS } from "../enums.js";
 
 var client = new LegiscanClient();
 
@@ -40,7 +39,7 @@ for (var q of queries) {
 console.log(hits.length + " search results");
 console.log(collected.size + " distinct bills associated with those results");
 
-var acceptable = new Set([ENROLLED, PASSED]);
+var acceptable = new Set([STATUS.Enrolled, STATUS.Passed]);
 for (var [id, bill] of collected) {
   // removes bills that are not enrolled or passed
   // we got the details by default above, which includes status
