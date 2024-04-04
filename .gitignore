@@ -1,4 +1,4 @@
-legiscan.db
-outfile.json
+*.db
+outfile.*
 node_modules
 package-lock.json

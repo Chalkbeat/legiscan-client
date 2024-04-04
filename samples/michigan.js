@@ -1,6 +1,12 @@
 import { LegiscanClient } from "../client.js";
 import { stringify } from "csv";
 import * as fs from "node:fs/promises";
+import Database from "better-sqlite3";
+
+var cache = new Database("cache.db");
+var created = cache.exec(`CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, value TEXT);`);
+var getCached = cache.prepare(`SELECT value FROM cache WHERE key = ?;`).pluck();
+var setCached = cache.prepare(`INSERT INTO cache VALUES (?, ?);`);
 
 const BATCH_SIZE = 20;
 
@@ -17,8 +23,17 @@ var all = await client.getMasterList({ state: "MI"});
 for (var i = 0; i < all.length; i += BATCH_SIZE) {
   let slice = all.slice(i, i + BATCH_SIZE);
   let request = slice.map(async bill => {
+    var hash = bill.change_hash;
 
-    var details = await client.getBill(bill.bill_id);
+    var details = getCached.run(hash);
+    if (details) {
+      // use the cached info
+      details = JSON.parse(details);
+    } else {
+      // get a fresh copy and cache it
+      details = await client.getBill(bill.bill_id);
+      setCached.run(hash, JSON.stringify(details));
+    }
     Object.assign(bill, details);
 
   });
