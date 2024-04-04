@@ -1,9 +1,10 @@
 // API docs: https://legiscan.com/misc/LegiScan_API_User_Manual.pdf
+import * as enums from "./enums.js";
 
 // utils
-var pause = (time = 1000) => new Promise(ok => setTimeout(ok, time));
-var fetchJSON = url => fetch(url).then(r => r.json());
-var parallel = (items, callback) => Promise.all(items.map(callback));
+function parallel(items, callback) {
+  return Promise.all(items.map(callback));
+}
 
 // object handling for numeric keys
 function* numericalEntries(object) {
@@ -22,17 +23,6 @@ function numericalToArray(object) {
  * Class to instantiate a client for the Legiscan API
  */
 export class LegiscanClient {
-  static ALL_YEARS = 1;
-  static CURRENT_YEAR = 2;
-  static RECENT = 3;
-  static PRIOR_YEAR = 4;
-
-  static INTRODUCED = 1;
-  static ENGROSSED = 2;
-  static ENROLLED = 3;
-  static PASSED = 4;
-  static VETOED = 5;
-  static FAILED = 6;
 
   /**
    * @param {string} key - the key for the API, defaults to your $LEGISCAN_API_KEY env variable
@@ -54,13 +44,14 @@ export class LegiscanClient {
       ...params
     }).toString();
 
-    return fetch(url.toString()).then(r => r.json());
+    var response = await fetch(url.toString()).then(r => r.json());
+    if (response.status == "ERROR") throw new Error(`Legiscan API rejected request: ${response.alert?.message || "no reason given"}`);
+    return response;
   }
 
   /*
   Other API methods to stub out:
   - getSessionList(state)
-  - getMasterList({ id || state })
   - getMasterListRaw({ id || state? })
   - getAmendment(id)
   - getSupplement(id)
@@ -77,6 +68,20 @@ export class LegiscanClient {
   */
 
   /**
+   * Get a list of all bills for a given session or state
+   * @param {Object} params - Either state or session ID must be specified
+   * @param {string} [params.state] - US State, will return the current session
+   * @param {string} [params.id] - the ID retrieved from getSessionList()
+   * @returns {Object}
+   */
+
+  async getMasterList({ state, id }) {
+    var result = await this.request("getMasterList", { state, id });
+    var list = numericalToArray(result.masterlist);
+    return list;
+  }
+
+  /**
    * Get the full text of a bill
    * @param {string} id - bill ID to request
    * @returns {Object}
@@ -87,26 +92,26 @@ export class LegiscanClient {
 
   /**
    * Get the details for a bill (such as status or history)
-   * @async
    * @param {string} id - bill ID to request
    * @returns {Object}
    */
   async getBill(id) {
-    var raw = await this.request("getBill", { id });
-    if (!raw.bill) console.log("No details for ", id);
-    return raw.bill || {};
-  }
-
-  /**
-   * Get an entire session by state
-   * @async
-   * @param {string} [params.state] - US state for this search
-   * @returns {Object}
-   */
-  async getMasterList(params) {
-    var response = await this.request("getMasterList", params);
-    var list = numericalToArray(response.masterlist);
-    return list;
+    var { bill } = await this.request("getBill", { id });
+    if (!bill) {
+      console.log("No details for ", id);
+      return {};
+    }
+    // adjust flags to be human-readable
+    for (var stage of bill.progress) {
+      stage.event_id = stage.event;
+      stage.event = enums.PROGRESS[stage.event_id];
+    }
+    bill.status_id = bill.status;
+    bill.status = enums.PROGRESS[bill.status_id];
+    for (var person of bill.sponsors) {
+      person.sponsor_type = enums.SPONSOR_TYPE[person.sponsor_type_id];
+    }
+    return bill;
   }
 
   /**
@@ -138,23 +143,19 @@ export class LegiscanClient {
   async *getSearchAsync(query, detailed = true, params = {}) {
     var page = 1;
 
-    var all = [];
-
     while (true) {
 
       var response = await this.request("getSearch", { query, page, ...params });
       var { summary } = response.searchresult;
-      
-      const keys = Object.keys(response.searchresult);
-      const billKeys = keys.filter(d => d.match(/^\d+$/)); // store numeric keys to remove summary and status
+      var items = numericalToArray(response.searchresult);
 
-      var items = billKeys.map(k => response.searchresult[k]);
       for (var item of items) {
         // normalize ID strings
         item.bill_id = String(item.bill_id);
       }
 
       // if requested, get and merge in detail information
+      // this handles them all at once, instead of serially
       if (detailed) {
         await parallel(items, async b => Object.assign(b, await this.getBill(b.bill_id)));
       }
