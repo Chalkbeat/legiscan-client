@@ -20,5 +20,8 @@
   "homepage": "https://github.com/Chalkbeat/legiscan-workflow#readme",
   "dependencies": {
     "minimist": "^1.2.8"
+  },
+  "devDependencies": {
+    "csv": "^6.3.8"
   }
 }

@@ -5,6 +5,19 @@ var pause = (time = 1000) => new Promise(ok => setTimeout(ok, time));
 var fetchJSON = url => fetch(url).then(r => r.json());
 var parallel = (items, callback) => Promise.all(items.map(callback));
 
+// object handling for numeric keys
+function* numericalEntries(object) {
+  for (var k in object) {
+    if (k.match(/^\d+$/)) {
+      yield [k * 1, object[k]];
+    }
+  }
+}
+
+function numericalToArray(object) {
+  return Array.from(numericalEntries(object), entry => entry[1]);
+}
+
 /**
  * Class to instantiate a client for the Legiscan API
  */
@@ -82,6 +95,18 @@ export class LegiscanClient {
     var raw = await this.request("getBill", { id });
     if (!raw.bill) console.log("No details for ", id);
     return raw.bill || {};
+  }
+
+  /**
+   * Get an entire session by state
+   * @async
+   * @param {string} [params.state] - US state for this search
+   * @returns {Object}
+   */
+  async getMasterList(params) {
+    var response = await this.request("getMasterList", params);
+    var list = numericalToArray(response.masterlist);
+    return list;
   }
 
   /**
