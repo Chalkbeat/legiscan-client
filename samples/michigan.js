@@ -25,7 +25,7 @@ for (var i = 0; i < all.length; i += BATCH_SIZE) {
   let request = slice.map(async bill => {
     var hash = bill.change_hash;
 
-    var details = getCached.run(hash);
+    var details = getCached.get(hash);
     if (details) {
       // use the cached info
       details = JSON.parse(details);
