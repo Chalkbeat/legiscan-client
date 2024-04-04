@@ -1,11 +1,6 @@
 // API docs: https://legiscan.com/misc/LegiScan_API_User_Manual.pdf
 import * as enums from "./enums.js";
 
-// utils
-function parallel(items, callback) {
-  return Promise.all(items.map(callback));
-}
-
 // object handling for numeric keys
 function* numericalEntries(object) {
   for (var k in object) {
@@ -140,7 +135,7 @@ export class LegiscanClient {
    * @param {number} [params.year] - Year specifier (available as static constants on LegiscanClient)
    * @yields {Object} Individual bill data
    */
-  async *getSearchAsync(query, detailed = true, params = {}) {
+  async *getSearchAsync(query, params = {}) {
     var page = 1;
 
     while (true) {
@@ -152,12 +147,6 @@ export class LegiscanClient {
       for (var item of items) {
         // normalize ID strings
         item.bill_id = String(item.bill_id);
-      }
-
-      // if requested, get and merge in detail information
-      // this handles them all at once, instead of serially
-      if (detailed) {
-        await parallel(items, async b => Object.assign(b, await this.getBill(b.bill_id)));
       }
 
       yield* items;
