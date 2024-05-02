@@ -10,7 +10,7 @@ function* numericalEntries(object) {
   }
 }
 
-function numericalToArray(object) {
+export function numericalToArray(object) {
   return Array.from(numericalEntries(object), entry => entry[1]);
 }
 
@@ -46,21 +46,27 @@ export class LegiscanClient {
 
   /*
   Other API methods to stub out:
-  - getSessionList(state)
-  - getMasterListRaw({ id || state? })
-  - getAmendment(id)
-  - getSupplement(id)
-  - getRollCall(id)
-  - getPerson(id)
   - getSearchRaw(query, { state?, year?, id? })
   - getDatasetList({ state?, year? })
   - getDataset(id, key)
-  - getSessionPeople(id)
-  - getSponsoredList(id)
   - getMonitorList(record?)
   - getMonitorListRaw(record?)
   - setMonitor(list, action, stance?)
   */
+
+  /**
+   * Get a list of sessions for a state
+   * @param {string} [state] - The US state, or all states if omitted
+   * @returns {Object}
+   */
+
+  async getSessionList(state) {
+    var result = await this.request("getSessionList", { state });
+    for (var session of result.sessions) {
+      session.state = enums.STATE[session.state_id];
+    }
+    return result.sessions;
+  }
 
   /**
    * Get a list of all bills for a given session or state
@@ -82,16 +88,17 @@ export class LegiscanClient {
 
   /**
    * Get the full text of a bill
-   * @param {string} id - bill ID to request
+   * @param {number} id - bill ID to request
    * @returns {Object}
    */
   async getBillText(id) {
-    return this.request("getBillText", { id });
+    var response = await this.request("getBillText", { id });
+    return response.text;
   }
 
   /**
    * Get the details for a bill (such as status or history)
-   * @param {string} id - bill ID to request
+   * @param {number} id - bill ID to request
    * @returns {Object}
    */
   async getBill(id) {
@@ -111,6 +118,83 @@ export class LegiscanClient {
       person.sponsor_type = enums.SPONSOR_TYPE[person.sponsor_type_id];
     }
     return bill;
+  }
+
+  /**
+   * Get the text of an amendment
+   * @param {number} id - amendment ID number (probably from getBill)
+   * @returns {Object}
+   */
+
+  async getAmendment(id) {
+    var { amendment } = await this.request("getAmendment", { id });
+    return amendment;
+  }
+
+  /**
+   * Get the text of a supplement (such as a fiscal note or analysis)
+   * @param {number} id - supplement ID number (probably from getBill)
+   * @returns {Object}
+   */
+
+  async getSupplement(id) {
+    var { supplement } = await this.request("getSupplement", { id });
+    return supplement;
+  }
+
+  /**
+   * Get the details of a roll call vote
+   * @param {number} id - vote ID number
+   * @returns {Object}
+   */
+
+  async getRollCall(id) {
+    var result = await this.request("getRollCall", { id });
+    var vote = result.roll_call;
+    return vote;
+  }
+
+  /**
+   * Get details on a person by ID
+   * @param {number} id - The Legiscan person ID
+   * @returns {Object}
+   */
+
+  async getPerson(id) {
+    var { person } = await this.request("getPerson", { id });
+    person.state = enums.STATE[person.state_id];
+    return person;
+  }
+
+  /**
+   * Get all active people in a given legislative session
+   * @param {number} id - The Legiscan session ID
+   * @returns {Array}
+   */
+
+  async getSessionPeople(id) {
+    var response = await this.request("getSessionPeople", { id });
+    var people = response.sessionpeople.people;
+    for (var person of people) {
+      person.state = enums.STATE[person.state_id];
+    }
+    return people;
+  }
+
+  /**
+   * Get a list of bills sponsored by a specific person
+   * @param {number} id - Legiscan person ID for the sponsor
+   * @returns {Array}
+   */
+
+  async getSponsoredList(id) {
+    var response = await this.request("getSponsoredList", { id });
+    var { sessions, bills } = response.sponsoredbills;
+    sessions = Object.fromEntries(sessions.map(s => [s.session_id, s.session_name]));
+    for (var bill of bills) {
+      bill.session = sessions[bill.session_id];
+    }
+    return bills;
   }
 
   /**
@@ -145,11 +229,6 @@ export class LegiscanClient {
       var response = await this.request("getSearch", { query, page, ...params });
       var { summary } = response.searchresult;
       var items = numericalToArray(response.searchresult);
-
-      for (var item of items) {
-        // normalize ID strings
-        item.bill_id = String(item.bill_id);
-      }
 
       yield* items;
 
