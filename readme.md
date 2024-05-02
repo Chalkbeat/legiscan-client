@@ -45,7 +45,7 @@ legiscan-client getbill --id=174039
 legiscan-client getbill "education AND gender" --state=TN
 ```
 
-# Best practices
+# Best practices and usage notes
 
 ## Caching
 
@@ -79,3 +79,52 @@ if (details) {
 ```
 
 This is, of course, a kind of Minimum Viable Cache, and if you're using a database more extensively for storing persistent legislative data, you can probably just adapt it. Conversely, if you're only getting master lists or searches and don't really care about the bill details, it may be possible (although probably not advisable) to hit the API directly. We do not ship a cache layer in the client itself, because we believe it's better for you to be in control of response freshness based on your specific needs.
+
+## Flags and Enums
+
+The Legiscan API uses a lot of flags and/or sentinel values for things like legislation progress, states, or record type. Sometimes these are supplemented with a human-readable text version, and sometimes not. As mentioned above, this client will attempt to normalize and fill in properties so that anything like `state_id` will also provide a string-typed `state` field.
+
+However, if you're interacting with some API calls that expect to receive these flags, this library also exports a set of constants that can be used to convert between them. The following constants are objects mapping the numeral code to their text value:
+
+* `BILL_TYPE` - Legislation categories, such as "Bill," Resolution," or "Executive Order"
+* `EVENT_TYPE` - Distinguishes between hearings, executive sessions, and markup
+* `PARTY`
+* `PROGRESS` - Legislation progress from "Prefiled" forward. Note that these IDs are not in chronological order.
+* `REASON` - Not used in the REST API
+* `ROLE` - The type of person or persons sponsoring a bill
+* `SAST_TYPE` - Same As/Similar To metadata
+* `SPONSOR_TYPE` - The sponsor relationship to a bill ("Sponsor", "Co-Sponsor", etc)
+* `STANCE` - A position that can be provided when setting an automated monitor list
+* `STATE` - US State by Postal Code
+* `SUPPLEMENT_TYPE` - Types of supplemental documents for a bill, such as fiscal notes or analysis
+* `TEXT_TYPE` - Types of primary documents for a bill revision
+* `VOTE` - "Yea," "Nay," "Not voting," or "Absent"
+
+Each of these has a corresponding `*_VALUES` constant that goes the other way, where the lookup key is the string text, and the value is the API flag.
+
+```js
+import { VOTE, VOTE_VALUES } from "legiscan-client";
+
+console.log(VOTE[1]); // "Yea"
+console.log(VOTE_VALUES["Nay"]); // 2
+```
+
+## Internal methods
+
+In addition to the methods provided on the client, you can also make arbitrary requests to the Legiscan API endpoint using its `request()` method. This is what we use internally for calling the API, and may be useful if new methods are added, or you're using something the client doesn't currently have built-in. For example, to get a monitor list, you could write:
+
+```js
+var response = await client.request("getMonitorList", "current");
+console.log(response.monitorlist);
+```
+
+In some cases (including the above monitor list), the API will not return an array for a list of items, but instead will provide an object with numerical keys. In this case, you can use the provided `numericalToArray` function to convert this into an actual JavaScript array (note that this will throw away any non-numerical keys on the object during conversion):
+
+```js
+import { numericalToArray } from "legiscan-client";
+var response = await client.request("getMonitorList", "current");
+// convert to a native array
+var list = numericalToArray(response.monitorlist);
+```
+
+Yes, this is a weird and annoying API choice, and was one of the driving inspirations for creating this client in the first place.
