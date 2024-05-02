@@ -1,28 +1,43 @@
+#!/usr/bin/env node
+
 import minimist from "minimist";
 import { LegiscanClient } from "./client.js";
 
 var client = new LegiscanClient();
 var args = minimist(process.argv);
-var statusSet = args.status ? new Set(args.status.split(",").map(Number)) : { has: () => true };
 
-var query = args._.at(-1);
+var [node, _, method, ...positional] = args._;
 
-var params = {
-  state: args.state,
-  year: args.year
-};
-
-// async collection
-// var all = await client.getSearch(query, !args.nodetails, params);
-// console.log(all.length);
-
-// async iterator
-for await (var result of client.getSearchAsync(query, params)) {
-  Object.assign(result, await client.getBill(result.bill_id));
-  if (statusSet.has(result.status)) {
-    // produce results as ND-JSON
-    console.log(JSON.stringify(result));
-  }
+function stringify(obj) {
+  console.log(JSON.stringify(obj));
 }
 
-// node cli 'schools and "transportation network" NOT medical' --status=3,4
+var client = new LegiscanClient();
+
+switch (method.toLowerCase()) {
+  case "getsearch":
+    var [query] = positional;
+    for await (var result of client.getSearchAsync(query, args)) {
+      stringify(result);
+    }
+  break;
+
+  case "getbill":
+    var id = args.id || positional[0];
+    stringify(await client.getBill(id));
+  break;
+
+  case "getbilltext":
+    var id = args.id || positional[0];
+    stringify(await client.getBillText(id));
+  break;
+
+  case "getmasterlist":
+    for (var result of await client.getMasterList(args)) {
+      stringify(result);
+    }
+  break;
+
+  default:
+    console.log("That command is not implemented yet. We welcome contributions at https://github.com/chalkbeat/legiscan-client");
+}

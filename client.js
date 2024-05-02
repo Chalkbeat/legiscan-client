@@ -73,6 +73,10 @@ export class LegiscanClient {
   async getMasterList({ state, id }) {
     var result = await this.request("getMasterList", { state, id });
     var list = numericalToArray(result.masterlist);
+    for (var item of list) {
+      item.status_id = item.status;
+      item.status = enums.PROGRESS[item.status_id];
+    }
     return list;
   }
 
