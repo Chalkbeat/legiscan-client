@@ -17,7 +17,8 @@ var params = {
 // console.log(all.length);
 
 // async iterator
-for await (var result of client.getSearchAsync(query, !args.nodetails, params)) {
+for await (var result of client.getSearchAsync(query, params)) {
+  Object.assign(result, await client.getBill(result.bill_id));
   if (statusSet.has(result.status)) {
     // produce results as ND-JSON
     console.log(JSON.stringify(result));
