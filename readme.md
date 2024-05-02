@@ -1,5 +1,3 @@
-# Legiscan API Client
-
 A Node-based library for accessing the Legiscan database of US state legislation. You will need an API key from https://legiscan.com/legiscan in order to use this client. Best-practice code examples from actual reporting at Chalkbeat are available in the `samples` folder.
 
 This package also installs a command-line client that can be run with the `legiscan-client` command, either for manual access or integration with other languages.
