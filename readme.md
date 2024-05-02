@@ -9,7 +9,7 @@ This package also installs a command-line client that can be run with the `legis
 To interact with the API, import and create an instance of the `LegiscanClient` class, which takes an API key as its argument. You can also set the `$LEGISCAN_API_KEY` environment variable, and then the client will pick that up instead.
 
 ```js
-import { LegiscanClient } from "legiscan-client";
+import { LegiscanClient } from "@civicnews/legiscan-client";
 // providing an API key directly:
 let legiscan = new LegiscanClient(API_KEY);
 // with the environment variable:
@@ -103,7 +103,7 @@ However, if you're interacting with some API calls that expect to receive these 
 Each of these has a corresponding `*_VALUES` constant that goes the other way, where the lookup key is the string text, and the value is the API flag.
 
 ```js
-import { VOTE, VOTE_VALUES } from "legiscan-client";
+import { VOTE, VOTE_VALUES } from "@civicnews/legiscan-client";
 
 console.log(VOTE[1]); // "Yea"
 console.log(VOTE_VALUES["Nay"]); // 2
@@ -121,7 +121,7 @@ console.log(response.monitorlist);
 In some cases (including the above monitor list), the API will not return an array for a list of items, but instead will provide an object with numerical keys. In this case, you can use the provided `numericalToArray` function to convert this into an actual JavaScript array (note that this will throw away any non-numerical keys on the object during conversion):
 
 ```js
-import { numericalToArray } from "legiscan-client";
+import { numericalToArray } from "@civicnews/legiscan-client";
 var response = await client.request("getMonitorList", "current");
 // convert to a native array
 var list = numericalToArray(response.monitorlist);
