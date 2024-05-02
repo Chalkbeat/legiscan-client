@@ -112,15 +112,14 @@ export class LegiscanClient {
   /**
    * Get the results of a search as a complete array containing all response pages
    * @param {string} query
-   * @param {boolean} [detailed=true] - Should this also get bill details?
    * @param {Object} [params] - Additional search parameters
    * @param {string} [params.state] - US state for this search
    * @param {number} [params.year] - Year specifier (available as static constants on LegiscanClient)
    * @returns {Object[]}
    */
-  async getSearch(query, detailed = true, params = {}) {
+  async getSearch(query, params = {}) {
     var all = [];
-    for await (var result of this.getSearchAsync(query, detailed, params)) {
+    for await (var result of this.getSearchAsync(query, params)) {
       all.push(result);
     }
     return all;
@@ -129,7 +128,6 @@ export class LegiscanClient {
   /**
    * Get the results of a search one at a time, as an async iterator
    * @param {string} query
-   * @param {boolean} [detailed=true] - Should this also get bill details?
    * @param {Object} [params] - Additional search parameters
    * @param {string} [params.state] - US state for this search
    * @param {number} [params.year] - Year specifier (available as static constants on LegiscanClient)
