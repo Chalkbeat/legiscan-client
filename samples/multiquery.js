@@ -45,7 +45,7 @@ var acceptable = new Set([STATUS.Enrolled, STATUS.Passed]);
 for (var [id, bill] of collected) {
   // removes bills that are not enrolled or passed
   // we got the details by default above, which includes status
-  if (!acceptable.has(bill.status)) {
+  if (!acceptable.has(bill.status_id)) {
     collected.delete(id);
     hits = hits.filter(b => b.bill_id != id);
   }
