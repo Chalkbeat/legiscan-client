@@ -55,4 +55,4 @@ console.log(hits.length + " search results for passed bills");
 console.log("Search queries that returned results: ", [...new Set(hits.map(h => h.searchTerm))])
 console.log(collected.size + " distinct bills that have passed");
 
-// console.log(JSON.stringify(Object.fromEntries(collected), null, 2));
+fs.writeFileSync('outfile.json', JSON.stringify(Object.fromEntries(collected), null, 2))
