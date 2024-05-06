@@ -86,7 +86,7 @@ However, if you're interacting with some API calls that expect to receive these 
 
 * `BILL_TYPE` - Legislation categories, such as "Bill," Resolution," or "Executive Order"
 * `EVENT_TYPE` - Distinguishes between hearings, executive sessions, and markup
-* `PARTY`
+* `PARTY` - Political party associated with sponsors, legislation, and so on
 * `PROGRESS` - Legislation progress from "Prefiled" forward. Note that these IDs are not in chronological order.
 * `REASON` - Not used in the REST API
 * `ROLE` - The type of person or persons sponsoring a bill
@@ -125,4 +125,4 @@ var response = await client.request("getMonitorList", "current");
 var list = numericalToArray(response.monitorlist);
 ```
 
-Yes, this is a weird and annoying API choice, and was one of the driving inspirations for creating this client in the first place.
+Yes, this is a weird and annoying API choice, and was one of the inspirations for creating this client in the first place.
