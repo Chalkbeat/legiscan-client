@@ -1,3 +1,12 @@
+/*
+Sample code: list all current Michigan legislation for reporters
+
+Uses SQLite as a key/value store to cache bill details based on their change
+hash, so that the ~3K records don't eat an entire month's worth of API calls
+in the first week.
+
+*/
+
 import { LegiscanClient } from "../client.js";
 import { stringify } from "csv";
 import * as fs from "node:fs/promises";

@@ -1,3 +1,13 @@
+/*
+Sample code: multiquery merging
+
+Getting all bills around a topic based on keywords may involve running
+multiple queries. This code performs repeated searches for keywords in a
+larger query, de-deduplicates them based on the Legiscan ID, and then outputs
+the final result to a JSON file for processing.
+
+*/
+
 import { LegiscanClient } from "../client.js";
 import * as fs from "node:fs";
 import { PROGRESS_VALUES as STATUS } from "../enums.js";
