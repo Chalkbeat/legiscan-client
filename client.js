@@ -1,15 +1,25 @@
 // API docs: https://legiscan.com/misc/LegiScan_API_User_Manual.pdf
 import * as enums from "./enums.js";
 
-// object handling for numeric keys
+/**
+ * Converts a PHP object with numerical keys into entries for consumption by other JS methods
+ * Discards any string keys it finds along the way
+ * @param {object} object - numerically-keyed object to convert to an array
+ * @yields {array} A standard key/value entry array
+ */
 function* numericalEntries(object) {
   for (var k in object) {
     if (k.match(/^\d+$/)) {
-      yield [k * 1, object[k]];
+      yield [Number(k), object[k]];
     }
   }
 }
 
+/**
+ * Converts a PHP object into a JS array using {@link numericalEntries}
+ * @param {object} object - PHP-style object to convert
+ * @returns {Array} A native JS array
+ */
 export function numericalToArray(object) {
   return Array.from(numericalEntries(object), entry => entry[1]);
 }
@@ -20,7 +30,7 @@ export function numericalToArray(object) {
 export class LegiscanClient {
 
   /**
-   * @param {string} key - the key for the API, defaults to your $LEGISCAN_API_KEY env variable
+   * @param {string} [key] - the key for the API, defaults to your $LEGISCAN_API_KEY env variable
    */
   constructor(key = process.env.LEGISCAN_API_KEY) {
     this.key = key;
@@ -57,7 +67,7 @@ export class LegiscanClient {
   /**
    * Get a list of sessions for a state
    * @param {string} [state] - The US state, or all states if omitted
-   * @returns {Object}
+   * @returns {Promise<Object>}
    */
 
   async getSessionList(state) {
@@ -73,7 +83,7 @@ export class LegiscanClient {
    * @param {Object} params - Either state or session ID must be specified
    * @param {string} [params.state] - US State, will return the current session
    * @param {string} [params.id] - the ID retrieved from getSessionList()
-   * @returns {Object}
+   * @returns {Promise<Object>}
    */
 
   async getMasterList({ state, id }) {
@@ -89,7 +99,7 @@ export class LegiscanClient {
   /**
    * Get the full text of a bill
    * @param {number} id - bill ID to request
-   * @returns {Object}
+   * @returns {Promise<Object>}
    */
   async getBillText(id) {
     var response = await this.request("getBillText", { id });
@@ -99,7 +109,7 @@ export class LegiscanClient {
   /**
    * Get the details for a bill (such as status or history)
    * @param {number} id - bill ID to request
-   * @returns {Object}
+   * @returns {Promise<Object>}
    */
   async getBill(id) {
     var { bill } = await this.request("getBill", { id });
@@ -123,7 +133,7 @@ export class LegiscanClient {
   /**
    * Get the text of an amendment
    * @param {number} id - amendment ID number (probably from getBill)
-   * @returns {Object}
+   * @returns {Promise<Object>}
    */
 
   async getAmendment(id) {
@@ -134,7 +144,7 @@ export class LegiscanClient {
   /**
    * Get the text of a supplement (such as a fiscal note or analysis)
    * @param {number} id - supplement ID number (probably from getBill)
-   * @returns {Object}
+   * @returns {Promise<Object>}
    */
 
   async getSupplement(id) {
@@ -145,7 +155,7 @@ export class LegiscanClient {
   /**
    * Get the details of a roll call vote
    * @param {number} id - vote ID number
-   * @returns {Object}
+   * @returns {Promise<Object>}
    */
 
   async getRollCall(id) {
@@ -157,7 +167,7 @@ export class LegiscanClient {
   /**
    * Get details on a person by ID
    * @param {number} id - The Legiscan person ID
-   * @returns {Object}
+   * @returns {Promise<Object>}
    */
 
   async getPerson(id) {
@@ -169,7 +179,7 @@ export class LegiscanClient {
   /**
    * Get all active people in a given legislative session
    * @param {number} id - The Legiscan session ID
-   * @returns {Array}
+   * @returns {Promise<Array>}
    */
 
   async getSessionPeople(id) {
@@ -184,7 +194,7 @@ export class LegiscanClient {
   /**
    * Get a list of bills sponsored by a specific person
    * @param {number} id - Legiscan person ID for the sponsor
-   * @returns {Array}
+   * @returns {Promise<Array>}
    */
 
   async getSponsoredList(id) {
@@ -203,7 +213,7 @@ export class LegiscanClient {
    * @param {Object} [params] - Additional search parameters
    * @param {string} [params.state] - US state for this search
    * @param {number} [params.year] - Year specifier (available as static constants on LegiscanClient)
-   * @returns {Object[]}
+   * @returns {Promise<Object[]>}
    */
   async getSearch(query, params = {}) {
     var all = [];
@@ -219,7 +229,7 @@ export class LegiscanClient {
    * @param {Object} [params] - Additional search parameters
    * @param {string} [params.state] - US state for this search
    * @param {number} [params.year] - Year specifier (available as static constants on LegiscanClient)
-   * @yields {Object} Individual bill data
+   * @yields {Promise<Object>} Individual bill data
    */
   async *getSearchAsync(query, params = {}) {
     var page = 1;

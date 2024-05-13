@@ -14,7 +14,7 @@ import Database from "better-sqlite3";
 import progress from "cli-progress";
 
 var cache = new Database("cache.db");
-var created = cache.exec(`CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, value TEXT);`);
+cache.exec(`CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, value TEXT);`);
 var getCached = cache.prepare(`SELECT value FROM cache WHERE key = ?;`).pluck();
 var setCached = cache.prepare(`INSERT INTO cache VALUES (?, ?);`);
 
@@ -43,11 +43,12 @@ for (var i = 0; i < all.length; i += BATCH_SIZE) {
   let request = slice.map(async bill => {
     var hash = bill.change_hash;
 
-    var details = getCached.get(hash);
-    if (details) {
+    var details;
+    var cached = getCached.get(hash);
+    if (cached) {
       // use the cached info
       cachedCount++;
-      details = JSON.parse(details);
+      details = JSON.parse(cached);
     } else {
       // get a fresh copy and cache it
       details = await client.getBill(bill.bill_id);
