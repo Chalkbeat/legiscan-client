@@ -120,7 +120,7 @@ console.log(VOTE_VALUES["Nay"]); // 2
 In addition to the methods provided on the client, you can also make arbitrary requests to the Legiscan API endpoint using its `request()` method. This is what we use internally for calling the API, and may be useful if new methods are added, or you're using something the client doesn't currently have built-in. For example, to get a monitor list, you could write:
 
 ```js
-var response = await client.request("getMonitorList", "current");
+var response = await client.request("getMonitorList", { record: "current" });
 console.log(response.monitorlist);
 ```
 
@@ -128,7 +128,7 @@ In some cases (including the above monitor list), the API will not return an arr
 
 ```js
 import { numericalToArray } from "@civicnews/legiscan-client";
-var response = await client.request("getMonitorList", "current");
+var response = await client.request("getMonitorList", { record: "current" });
 // convert to a native array
 var list = numericalToArray(response.monitorlist);
 ```
