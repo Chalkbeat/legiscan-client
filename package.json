@@ -1,7 +1,7 @@
 {
   "name": "@civicnews/legiscan-client",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "A Node client for the Legiscan API",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -12,8 +12,8 @@
     "url": "git+https://github.com/Chalkbeat/legiscan-workflow.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Civic News",
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/Chalkbeat/legiscan-workflow/issues"
   },

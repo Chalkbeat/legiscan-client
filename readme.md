@@ -1,6 +1,14 @@
-A Node-based library for accessing the Legiscan database of US state legislation. You will need an API key from https://legiscan.com/legiscan in order to use this client. Best-practice code examples from actual reporting at Chalkbeat are available in the `samples` folder.
+A pure JavaScript library for accessing the Legiscan database of US state legislation. You will need an API key from https://legiscan.com/legiscan in order to use this client. Best-practice code examples from actual reporting at Chalkbeat are available in the `samples` folder.
 
-This package also installs a command-line client that can be run with the `legiscan-client` command, either for manual access or integration with other languages.
+For Node or other server-based runtimes, you can install from NPM:
+
+```sh
+npm install @civicnews/legiscan-client
+```
+
+Although it is primarily intended for use on the server, the client uses only standard runtime APIs like `fetch()`, and (as long as the API continues to use the correct CORS headers) can also run in the browser itself.
+
+When using Node, this package also installs a command-line client that can be run with the `legiscan-client` command, either for manual access or integration with other languages.
 
 # Getting started
 
