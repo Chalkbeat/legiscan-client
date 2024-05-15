@@ -30,11 +30,8 @@ var collected = new Map();
 var hits = [];
 
 for (var q of queries) {
-  // var query = `school AND ${q} NOT "medical school"`;
   var query = `school AND "${q}" NOT "medical school"`;
 
-  // add `, "wa"` to pick a state
-  // var all = await client.getSearch(query, true, "wa");
   for await (var item of client.getSearchAsync(query, { state: "wa" })) {
     var { bill_id, relevance } = item;
     var details = await client.getBill(bill_id);
@@ -55,7 +52,8 @@ var acceptable = new Set([STATUS.Enrolled, STATUS.Passed]);
 for (var [id, bill] of collected) {
   // removes bills that are not enrolled or passed
   // we got the details by default above, which includes status
-  if (!acceptable.has(bill.status_id)) {
+  // sets an arbitrary relevance threshold to filter bills based on Legiscan's relevancy score
+  if (!acceptable.has(bill.status_id) || bill.relevance < 70) {
     collected.delete(id);
     hits = hits.filter(b => b.bill_id != id);
   }
