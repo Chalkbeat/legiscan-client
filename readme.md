@@ -75,7 +75,6 @@ var hash = bill.change_hash;
 var details = getCached.get(hash);
 if (details) {
   // use the cached info
-  cachedCount++;
   details = JSON.parse(details);
 } else {
   // get a fresh copy and cache it

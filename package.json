@@ -1,6 +1,6 @@
 {
   "name": "@civicnews/legiscan-client",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A Node client for the Legiscan API",
   "main": "index.js",
   "type": "module",
