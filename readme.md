@@ -22,12 +22,12 @@ let legiscan = new LegiscanClient(API_KEY);
 let legiscan = new LegiscanClient();
 ```
 
-The client provides async methods corresponding to each API call. For example, to run a search and get bill details, you could run the following code:
+The client provides async methods corresponding to each API call. For example, to run a search and add bill details, you could write the following code:
 
 ```js
 let results = await client.getSearch("education AND javascript");
 for (let result of results) {
-  var details = await client.getBill(result.bill_id);
+  let details = await client.getBill(result.bill_id);
   Object.assign(result, details);
 }
 ```
@@ -48,7 +48,7 @@ legiscan-client getbill 174039
 legiscan-client getbill --id=174039
 
 # getsearch example
-legiscan-client getbill "education AND gender" --state=TN
+legiscan-client getsearch "education AND gender" --state=TN
 ```
 
 # Best practices and usage notes
