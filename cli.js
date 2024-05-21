@@ -62,14 +62,14 @@ function defineSimpleCommand(command, description, params = "ID") {
   }
 }
 
-defineSimpleCommand("getBill", "Get detailed bill information");
-defineSimpleCommand("getBillText", "Get the text of a specific bill version");
-defineSimpleCommand("getAmendment", "Get the text of an amendment");
-defineSimpleCommand("getSupplement", "Get the text of a supplemental document");
-defineSimpleCommand("getRollCall", "Get a roll call vote result for a bill");
-defineSimpleCommand("getPerson", "Get the detailed profile for a person");
-defineSimpleCommand("getSessionPeople", "Get all people involved in a given session");
-defineSimpleCommand("getSponsoredList", "Get all sponsors for a bill");
+defineSimpleCommand("getBill", "Get detailed bill information", "BILL_ID");
+defineSimpleCommand("getBillText", "Get the text of a specific bill version", "DOCUMENT_ID");
+defineSimpleCommand("getAmendment", "Get the text of an amendment", "DOCUMENT_ID");
+defineSimpleCommand("getSupplement", "Get the text of a supplemental document", "DOCUMENT_ID");
+defineSimpleCommand("getRollCall", "Get a roll call vote result for a bill", "BILL_ID");
+defineSimpleCommand("getPerson", "Get the detailed profile for a person", "PERSON_ID");
+defineSimpleCommand("getSessionPeople", "Get all people involved in a given session", "SESSION_ID");
+defineSimpleCommand("getSponsoredList", "Get all sponsors for a bill", "BILL_ID");
 defineSimpleCommand("getSessionList", "Get sessions for a single state, or for all states", "[STATE]")
 
 // get the selected command from the dictionary and execute it
