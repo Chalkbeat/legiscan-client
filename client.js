@@ -4,7 +4,7 @@ import * as enums from "./enums.js";
 /**
  * Converts a PHP object with numerical keys into entries for consumption by other JS methods
  * Discards any string keys it finds along the way
- * @param {object} object - numerically-keyed object to convert to an array
+ * @param {object} object numerically-keyed object to convert to an array
  * @yields {array} A standard key/value entry array
  */
 function* numericalEntries(object) {
@@ -17,7 +17,7 @@ function* numericalEntries(object) {
 
 /**
  * Converts a PHP object into a JS array using {@link numericalEntries}
- * @param {object} object - PHP-style object to convert
+ * @param {object} object PHP-style object to convert
  * @returns {Array} A native JS array
  */
 export function numericalToArray(object) {
@@ -30,7 +30,7 @@ export function numericalToArray(object) {
 export class LegiscanClient {
 
   /**
-   * @param {string} [key] - the key for the API, defaults to your $LEGISCAN_API_KEY env variable
+   * @param {string} [key] the key for the API, defaults to your $LEGISCAN_API_KEY env variable
    */
   constructor(key = process.env.LEGISCAN_API_KEY) {
     this.key = key;
@@ -38,8 +38,8 @@ export class LegiscanClient {
 
   /**
    * Make an API request, adding the key automatically
-   * @param {string} op - The API endpoint to hit (e.g., getSearchRaw)
-   * @param {Object} params - Query parameters to add to the request URL
+   * @param {string} op The API endpoint to hit (e.g., getSearchRaw)
+   * @param {Object} params Query parameters to add to the request URL
    */
   async request(op, params = {}) {
     var url = new URL("https://api.legiscan.com/");
@@ -66,7 +66,8 @@ export class LegiscanClient {
 
   /**
    * Get a list of sessions for a state
-   * @param {string} [state] - The US state, or all states if omitted
+   * @cli getSessionList
+   * @param {string} [state] The US state, or all states if omitted
    * @returns {Promise<Object>}
    */
 
@@ -80,9 +81,10 @@ export class LegiscanClient {
 
   /**
    * Get a list of all bills for a given session or state
-   * @param {Object} params - Either state or session ID must be specified
-   * @param {string} [params.state] - US State, will return the current session
-   * @param {string} [params.id] - the ID retrieved from getSessionList()
+   * @cli getMasterList
+   * @param {Object} params Either state or session ID must be specified
+   * @param {string} [params.state] US State, will return the current session
+   * @param {string} [params.id] the ID retrieved from getSessionList()
    * @returns {Promise<Object>}
    */
 
@@ -98,7 +100,8 @@ export class LegiscanClient {
 
   /**
    * Get the full text of a bill
-   * @param {number} id - bill ID to request
+   * @cli getBillText
+   * @param {number} id bill ID to request
    * @returns {Promise<Object>}
    */
   async getBillText(id) {
@@ -108,7 +111,8 @@ export class LegiscanClient {
 
   /**
    * Get the details for a bill (such as status or history)
-   * @param {number} id - bill ID to request
+   * @cli getBill
+   * @param {number} id bill ID to request
    * @returns {Promise<Object>}
    */
   async getBill(id) {
@@ -132,7 +136,8 @@ export class LegiscanClient {
 
   /**
    * Get the text of an amendment
-   * @param {number} id - amendment ID number (probably from getBill)
+   * @cli getAmendment
+   * @param {number} id amendment ID number (probably from getBill)
    * @returns {Promise<Object>}
    */
 
@@ -143,7 +148,8 @@ export class LegiscanClient {
 
   /**
    * Get the text of a supplement (such as a fiscal note or analysis)
-   * @param {number} id - supplement ID number (probably from getBill)
+   * @cli getSupplement
+   * @param {number} id supplement ID number (probably from getBill)
    * @returns {Promise<Object>}
    */
 
@@ -154,7 +160,8 @@ export class LegiscanClient {
 
   /**
    * Get the details of a roll call vote
-   * @param {number} id - vote ID number
+   * @cli getRollCall
+   * @param {number} id vote ID number
    * @returns {Promise<Object>}
    */
 
@@ -166,7 +173,8 @@ export class LegiscanClient {
 
   /**
    * Get details on a person by ID
-   * @param {number} id - The Legiscan person ID
+   * @cli getPerson
+   * @param {number} id The Legiscan person ID
    * @returns {Promise<Object>}
    */
 
@@ -178,7 +186,8 @@ export class LegiscanClient {
 
   /**
    * Get all active people in a given legislative session
-   * @param {number} id - The Legiscan session ID
+   * @cli getSessionPeople
+   * @param {number} id The Legiscan session ID
    * @returns {Promise<Array>}
    */
 
@@ -193,7 +202,8 @@ export class LegiscanClient {
 
   /**
    * Get a list of bills sponsored by a specific person
-   * @param {number} id - Legiscan person ID for the sponsor
+   * @cli getSponsoredList
+   * @param {number} id Legiscan person ID for the sponsor
    * @returns {Promise<Array>}
    */
 
@@ -209,10 +219,11 @@ export class LegiscanClient {
 
   /**
    * Get the results of a search as a complete array containing all response pages
-   * @param {string} query
-   * @param {Object} [params] - Additional search parameters
-   * @param {string} [params.state] - US state for this search
-   * @param {number} [params.year] - Year specifier (available as static constants on LegiscanClient)
+   * @cli getSearch
+   * @param {string} query Full text query
+   * @param {Object} [params] Additional search parameters
+   * @param {string} [params.state] US state for this search
+   * @param {number} [params.year] Year specifier, see the YEARS enum or API docs
    * @returns {Promise<Object[]>}
    */
   async getSearch(query, params = {}) {
@@ -226,9 +237,9 @@ export class LegiscanClient {
   /**
    * Get the results of a search one at a time, as an async iterator
    * @param {string} query
-   * @param {Object} [params] - Additional search parameters
-   * @param {string} [params.state] - US state for this search
-   * @param {number} [params.year] - Year specifier (available as static constants on LegiscanClient)
+   * @param {Object} [params] Additional search parameters
+   * @param {string} [params.state] US state for this search
+   * @param {number} [params.year] Year specifier, see the YEARS enum or API docs
    * @yields {Promise<Object>} Individual bill data
    */
   async *getSearchAsync(query, params = {}) {
