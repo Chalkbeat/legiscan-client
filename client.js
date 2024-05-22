@@ -223,7 +223,7 @@ export class LegiscanClient {
    * @param {string} query Full text query
    * @param {Object} [params] Additional search parameters
    * @param {string} [params.state] US state for this search
-   * @param {number} [params.year] Year specifier, see the YEARS enum or API docs
+   * @param {number} [params.year] Year specifier, see the API docs
    * @returns {Promise<Object[]>}
    */
   async getSearch(query, params = {}) {
@@ -239,7 +239,7 @@ export class LegiscanClient {
    * @param {string} query
    * @param {Object} [params] Additional search parameters
    * @param {string} [params.state] US state for this search
-   * @param {number} [params.year] Year specifier, see the YEARS enum or API docs
+   * @param {number} [params.year] Year specifier, see the API docs
    * @yields {Promise<Object>} Individual bill data
    */
   async *getSearchAsync(query, params = {}) {
