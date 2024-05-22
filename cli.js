@@ -24,6 +24,7 @@ function stringify(obj) {
 
 // functions to turn command line arguments into method signature form
 // most methods just take the id
+// TODO: when decorators are supported, add this metadata through an @cli decorator instead of JSDoc
 const translations = {
   standard: ({ id }) => [ id || first],
   getSearch: ({ state, year }) => [first, { state, year }],
